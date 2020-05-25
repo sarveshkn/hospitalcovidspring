@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+  http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+  http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.1.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+  http://www.springframework.org/schema/data/mongo
+          http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	<jaxrs:server id="hospitalapiservice" address="/rest">
+		<jaxrs:serviceBeans>
+			<ref bean="hospitalApiController" />
+		</jaxrs:serviceBeans>
+		<jaxrs:providers>
+			<ref bean="jsonProvider" />
+		</jaxrs:providers>
+		<jaxrs:features>
+			<ref bean="swagger2Feature" />
+		</jaxrs:features>
+	</jaxrs:server>
+	<bean id="hospitalApiController"
+		class="com.practise.microservice.rs.endpoints.HospitalApiImpl">
+		<description>
+			This Bean contains REST methods.
+		</description>
+	</bean>
+	<bean id="jsonProvider"
+		class="org.codehaus.jackson.jaxrs.JacksonJsonProvider">
+		<description>
+			This Bean contains implementation to serilized json
+			object.
+		</description>
+	</bean>
+	<!-- CXF Swagger2Feature -->
+	<bean id="swagger2Feature"
+		class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
+		<!-- customize some of the properties -->
+		<property name="basePath" value="/app/swaggerSample" />
+	</bean>
+	<context:component-scan
+		base-package="com.practise.microservice" />
+
+	<mongo:repositories
+		base-package="com.practise.microservice.repository.*" />
+
+	<context:property-placeholder
+		location="/WEB-INF/classes/mongo.properties" />
+
+	<!-- <bean
+		class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="location">
+			<list>
+				<value>classpath:mongo.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean> -->
+</beans>
