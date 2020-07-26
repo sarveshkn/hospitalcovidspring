@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: covidmongodb
+  name: covidserver
   labels:
-    app: covidmongodb
+    app: covidserver
   namespace: deployment-demo
   annotations:
     monitoring: "true"
@@ -11,17 +11,17 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: covidmongodb
+      app: covidserver
   template:
     metadata:
       labels:
-        app: covidmongodb
+        app: covidserver
     spec:
       containers:
-      - image: sarveshkn/77e096170a86
-        name: covidmongodb
+      - image: {{image_id}}
+        name: covidserver
         ports:
-        - containerPort: 27017
+        - containerPort: 8080
         resources:
           limits:
             memory: "2Gi"
@@ -29,10 +29,3 @@ spec:
           requests: 
             memory: "1Gi"
             cpu: "500m"
-        volumeMounts:
-        - mountPath: /data/db
-          name: mongodb-volume
-      volumes:
-      - name: mongodb-volume
-        hostPath:
-         path: /home/sarvesh/CovidMongo/mongodb_docker

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: covidmongodb
+  name: covidmongodb
+  namespace: deployment-demo
+spec:
+  ports:
+  - nodePort: 30500
+    port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    app: covidmongodb
+  type: NodePort

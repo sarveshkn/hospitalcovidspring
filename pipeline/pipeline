@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+     environment {
+               registry = "sarveshkn/hospitalcovidspring"
+               registryCredential = 'DockerHub'
+               image_id = "$registry" + ":${env.BUILD_ID}"
+    }
+
+    tools {
+        // Install the Maven version configured as "mvn" and add it to the path.
+         maven 'mvn'
+         jdk 'JDK8.0'
+    }
+
+    stages {
+           
+        stage ('Initialize') {
+            steps {
+                sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                ''' 
+            }
+        }
+        stage('Build') {
+               
+            steps {
+                // Get some code from a GitHub repository
+                git 'https://github.com/sarveshkn/hospitalcovidspring.git'
+
+                // Run Maven on a Unix agent.
+                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+
+                sh "cp ${WORKSPACE}/target/hospitalcovid-0.0.1-SNAPSHOT.war ${WORKSPACE}/docker/"
+                script {
+                    def appimage = docker.build(registry + ":${env.BUILD_ID}", "${WORKSPACE}/docker/") 
+                    docker.withRegistry('', registryCredential ) {
+                       //appimage.push()
+                       appimage.push('latest')
+                   }
+                }
+                
+
+            }
+
+        }
+        
+        stage('Apply Kubernetes files') {
+            
+            steps {
+                withKubeConfig([credentialsId: 'Deployment-Demo-K8s', serverUrl: 'https://192.168.0.108:6443']) {
+                    sh 'kubectl get pods --all-namespaces'
+                    script {
+                        sh '''
+                            echo ${image_id}
+                            cat ${WORKSPACE}/deployment/deployment_mongo.yaml | sed "s~{{image_id}}~$image_id~" | kubectl apply -f -
+                        '''
+                        //sh "kubectl create -f ${WORKSPACE}/deployment/deployment_mongo.yaml --extra-vars \"image_id=${image_id}\""
+                    }
+                }
+            }
+        }
+    }
+}
+

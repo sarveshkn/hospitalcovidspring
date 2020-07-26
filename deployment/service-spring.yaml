@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: covidserver
+  name: covidserver
+  namespace: deployment-demo
+spec:
+  ports:
+  - nodePort: 30501
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: covidserver
+  type: NodePort
