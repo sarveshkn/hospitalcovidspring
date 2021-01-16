@@ -15,9 +15,9 @@ public class MessageHandler {
 		if (message != null) {
 			if (message instanceof ErrorMessage) {
 				message = (ErrorMessage) message;
-				return Response.ok().status(Integer.valueOf(message.getErrorCode()), message.getTitle()).build();
+				return Response.ok().entity(message).build();
 			} else if (message instanceof WarningMessage) {
-				return Response.ok().status(Integer.valueOf(message.getErrorCode()), message.getTitle()).build();
+				return Response.ok().entity(message).build();
 			}
 		}
 		return message.getResponse();
